@@ -1,0 +1,6 @@
+[package]
+name = "eagre-ecs"
+version = "0.1.0"
+authors = ["Rahix <h.w.seiler@gmx.de>"]
+
+[dependencies]
