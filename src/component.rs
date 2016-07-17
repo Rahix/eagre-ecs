@@ -22,12 +22,40 @@ impl<T: any::Any + fmt::Debug + Clone> Component for T { }
 /// }
 /// system.run::<eagre_ecs::All, _>(|sys: &System, ent: Entity| {
 ///     println!("Entity: {}", ent);
-/// })
+/// });
 /// ```
 #[derive(Debug, Clone, Copy)]
 pub struct All;
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use ::prelude::*;
+
+    #[derive(Debug, Clone)]
+    struct Comp1;
+
+    #[derive(Debug, Clone)]
+    struct Comp2;
+
+    #[derive(Debug, Clone)]
+    struct Comp3;
+
+    #[test]
+    fn all_returns_all() {
+        let mut system = System::new();
+        let mut val = 100;
+        for i in 0..val {
+            let ent = system.new_entity();
+            match i%3 {
+                0 => system.add::<Comp1>(ent, Comp1).unwrap(),
+                1 => system.add::<Comp2>(ent, Comp2).unwrap(),
+                2 => system.add::<Comp3>(ent, Comp3).unwrap(),
+                _ => unreachable!(),
+            }
+        }
+        system.run::<::All, _>(|_: &System, _: Entity| {
+            val -= 1;
+        }).unwrap();
+        assert_eq!(0, val);
+    }
 }

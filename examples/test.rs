@@ -18,16 +18,16 @@ fn main() {
 
     // Entity 1
     let entity = system.new_entity();
-    system.add(entity, MyComponent { x: 12, y: 42 });
-    system.add(entity, MySecondComponent { name: "Foo".to_string() });
+    system.add(entity, MyComponent { x: 12, y: 42 }).unwrap();
+    system.add(entity, MySecondComponent { name: "Foo".to_string() }).unwrap();
 
     // Entity 2
     let entity = system.new_entity();
-    system.add(entity, MyComponent { x: 13, y: 16 });
+    system.add(entity, MyComponent { x: 13, y: 16 }).unwrap();
 
     // Entity 3
     let entity = system.new_entity();
-    system.add(entity, MySecondComponent { name: "Bar".to_string() });
+    system.add(entity, MySecondComponent { name: "Bar".to_string() }).unwrap();
 
     // Do something
     println!("All Entities having a MyComponent:");

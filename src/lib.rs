@@ -20,16 +20,16 @@
 //!     for i in 0..100 {
 //!         let ent = system.new_entity();
 //!         match i%2 {
-//!             0 => system.add(ent, Foo(i)),
-//!             1 => system.add(ent, Bar(i)),
+//!             0 => system.add(ent, Foo(i)).unwrap(),
+//!             1 => system.add(ent, Bar(i)).unwrap(),
 //!             _ => unreachable!(),
 //!         }
 //!     }
 //!     system.run_mut::<Foo, _>(|sys: &mut System, ent: Entity| {
-//!         sys.borrow_mut::<Foo>(ent).0 += 1;
+//!         sys.borrow_mut::<Foo>(ent).unwrap().0 += 1;
 //!     }).unwrap();
 //!     system.run_mut::<Bar, _>(|sys: &mut System, ent: Entity| {
-//!         sys.borrow_mut::<Bar>(ent).0 -= 1;
+//!         sys.borrow_mut::<Bar>(ent).unwrap().0 -= 1;
 //!     }).unwrap();
 //!     system.run::<eagre_ecs::All, _>(|sys: &System, ent: Entity| {
 //!         if sys.has::<Foo>(ent) {
@@ -37,7 +37,7 @@
 //!         } else {
 //!             println!("Bar: {}", sys.borrow::<Bar>(ent).unwrap().0);
 //!         }
-//!     })
+//!     }).unwrap();
 //! }
 //! ```
 #![warn(missing_docs,

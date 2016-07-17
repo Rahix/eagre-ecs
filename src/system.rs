@@ -13,6 +13,8 @@ use error;
 /// ```
 /// # use eagre_ecs::prelude::*;
 ///
+/// // Those two traits are required for components
+/// #[derive(Debug, Clone)]
 /// struct MyComponent(i32);
 ///
 /// let mut system = System::new();
@@ -42,8 +44,10 @@ impl System {
     /// Create a new entity
     pub fn new_entity(&mut self) -> entity::Entity {
         self.max_entity += 1;
-        self.entities.insert(self.max_entity, collections::HashSet::new());
-        self.max_entity
+        let new_id = self.max_entity;
+        self.entities.insert(new_id, collections::HashSet::new());
+        self.add::<component::All>(new_id, component::All).unwrap();
+        new_id
     }
 
     /// Destroy an entity and all it's components
@@ -129,5 +133,61 @@ impl System {
             f(self, ent);
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use ::prelude::*;
+
+    #[derive(Debug, Clone)]
+    struct MyComponent {
+        x: i32,
+        y: i32,
+    }
+
+    #[derive(Debug, Clone)]
+    struct MySecondComponent {
+        name: String,
+    }
+
+    #[test]
+    fn test_system() {
+        let mut system = System::new();
+
+        // Entity 1
+        let entity = system.new_entity();
+        system.add(entity, MyComponent { x: 12, y: 42 }).unwrap();
+        system.add(entity, MySecondComponent { name: "Foo".to_string() }).unwrap();
+
+        // Entity 2
+        let entity = system.new_entity();
+        system.add(entity, MyComponent { x: 13, y: 16 }).unwrap();
+
+        // Entity 3
+        let entity = system.new_entity();
+        system.add(entity, MySecondComponent { name: "Bar".to_string() }).unwrap();
+
+        // Do something
+        system.run::<MyComponent, _>(|sys: &System, ent: Entity| {
+            let x = sys.borrow::<MyComponent>(ent).unwrap().x;
+            let y = sys.borrow::<MyComponent>(ent).unwrap().y;
+            assert!(x == 12 || x == 13);
+            assert!(y == 42 || y == 16);
+        }).unwrap();
+        system.run::<MySecondComponent, _>(|sys: &System, ent: Entity| {
+            let name = sys.get::<MySecondComponent>(ent).unwrap().name;
+            assert!(name == "Foo".to_string() || name == "Bar".to_string());
+        }).unwrap();
+        system.run_mut::<MyComponent, _>(|sys: &mut System, ent: Entity| {
+            sys.borrow_mut::<MyComponent>(ent).unwrap().x += 1;
+            sys.borrow_mut::<MyComponent>(ent).unwrap().y += 1;
+        }).unwrap();
+        system.run::<MyComponent, _>(|sys: &System, ent: Entity| {
+            let x = sys.borrow::<MyComponent>(ent).unwrap().x;
+            let y = sys.borrow::<MyComponent>(ent).unwrap().y;
+            assert!(x == 13 || x == 14);
+            assert!(y == 43 || y == 17);
+        }).unwrap();
     }
 }
