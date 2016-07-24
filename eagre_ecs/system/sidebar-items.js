@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["System","An Entity-Component System"]]});
