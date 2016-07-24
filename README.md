@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/Rahix/eagre-ecs.svg?branch=master)](https://travis-ci.org/Rahix/eagre-ecs)
 eagre-ecs
 =========
 
