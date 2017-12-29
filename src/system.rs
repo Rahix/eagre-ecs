@@ -118,6 +118,12 @@ impl System {
         }
     }
 
+    /// Get all entities for a component
+    pub fn entities_with<T: component::Component>(&self) -> error::EcsResult<Vec<entity::Entity>> {
+        Ok(try!(self.components.get(&any::TypeId::of::<T>()).ok_or(error::EcsError::ComponentNotFound(any::TypeId::of::<T>()))).keys()
+            .map(|e| *e).collect())
+    }
+
     /// Run a procedure for every entity with a component
     pub fn run<T: component::Component, F: FnMut(&System, entity::Entity)>(&self, mut f: F) -> error::EcsResult<()> {
         for ent in try!(self.components.get(&any::TypeId::of::<T>()).ok_or(error::EcsError::ComponentNotFound(any::TypeId::of::<T>()))).keys() {
@@ -149,6 +155,28 @@ mod tests {
     #[derive(Debug, Clone)]
     struct MySecondComponent {
         name: String,
+    }
+
+    #[derive(Debug, Clone)]
+    struct Dummy1;
+
+    #[test]
+    fn test_entities_with() {
+        let mut system = System::new();
+
+        let e1 = system.new_entity();
+        system.add(e1, Dummy1);
+
+        let e2 = system.new_entity();
+        system.add(e2, Dummy1);
+
+        let e3 = system.new_entity();
+
+        let with_d = system.entities_with::<Dummy1>().unwrap();
+
+        assert!(with_d.contains(&e1));
+        assert!(with_d.contains(&e2));
+        assert!(!with_d.contains(&e3));
     }
 
     #[test]
